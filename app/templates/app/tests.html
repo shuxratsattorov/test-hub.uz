@@ -1,0 +1,75 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+<!-- ===============================================-->
+<!-- Title -->
+<!-- ===============================================-->
+
+{% block title %}
+    List
+{% endblock %}
+
+<!-- ===============================================-->
+<!-- Header -->
+<!-- ===============================================-->
+
+{% block content %}
+
+<section class="main-section">
+        <div class="search-container">
+            <form class="search" method="GET">
+                <input type="text" name="test_ids" value="{{ test_id_query }}" placeholder="Id kiriting">
+                <button type="submit">Qidiruv</button>
+            </form>
+        </div>
+        {% for test in tests %}
+        <div class="search-test-card">Qidiruv natijasi:</div>
+        <a class="search-test-card-item" href="#" onclick="openModal()">
+            <div class="top-items">
+                <div class="search-test-card-id">{{ test.test_ids }}</div>
+            <div class="search-test-card-title">{{ test.title }}</div>
+            </div>
+            <div class="buttom-items">
+                <div class="search-test-card-count">Testlar soni: {{ test.test_count }}</div>
+                <div class="search-test-card-time">Berilgan vaqt: {{ test.duration }} minut</div>
+                <div class="search-test-card-deadline">Deadline: {{ test.deadline }} kun</div>
+            </div>
+        </a>
+        {% endfor %}
+        <div class="addition-test">
+            <div class="addition-test-title">
+                Testlar to'plami:
+            </div>
+            <div class="addition-test-container">
+                <a href="#" class="addition-test-cards">
+                    <div class="img-container">
+                        <img class="addition-test-card-img" src="{% static 'app/assets/icon/img.png' %}" alt="">
+                    </div>
+                    <div class="addition-test-card-title">Avto test</div>
+                    <div class="addition-test-card-count"><span>Savolar soni:</span> 90</div>
+                    <div class="addition-test-card-description" id="description">
+                        <button class="expand-btn" id="expandBtn"><img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Down.svg' %}" alt=""></button>
+                        <span>Tavsif:</span>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatem pariatur unde facere sint eligendi fugiat voluptates. Quo, laudantium recusandae.
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal" id="deleteModal">
+            <div class="modal-content">
+            {% for test in tests %}
+                <div class="modal-title"><span>ID:</span> {{ test.test_ids }}</div>
+            {% endfor %}
+            <form method="POST">
+            {% csrf_token %}
+                <input type="text" name="test_password" placeholder="Tasdiqlash kodi">
+                <button class="confirm-btn animation-button" onclick="confirmDelete()">Tasdiqlash</button>
+                <button class="cancel-btn" onclick="closeModal()"><div class="close-icon"></div></button>
+            </form>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

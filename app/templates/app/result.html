@@ -1,0 +1,58 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+<!-- ===============================================-->
+<!-- Title -->
+<!-- ===============================================-->
+
+{% block title %}
+    Natija
+{% endblock %}
+
+<!-- ===============================================-->
+<!-- Header -->
+<!-- ===============================================-->
+
+{% block content %}
+
+<section class="view-test__main-section">
+    <!-- /Main Section -->
+    <div class="result">
+        <div class="result__left-container">
+            <h1>Sizning natijangiz</h1>
+            <div class="result__circle">
+                    <h1><span>{{ results.0.percentage|floatformat:0 }}</span>dan 100%</h1>
+            </div>
+            {% if results.0.percentage >= 90 %}
+                <h2>A'lo</h2>
+            {% elif results.0.percentage >= 75 %}
+                <h2>Yaxshi</h2>
+            {% elif results.0.percentage >= 50 %}
+                <h2>Qoniqarli</h2>
+            {% else %}
+                <h2>Muvaffaqiyatsiz</h2>
+            {% endif %}
+            <p>Kuting! 1 kun ichida umumiy natijalar e'lon qilinadi, izlanishdan to'xtamang!</p>
+        </div>
+        <div class="result__right-container">
+            <h1>Xulosa</h1>
+            <div class="result__user-info">
+                <img src="{% static 'app/assets/icon/User result.svg' %}" alt="">
+                {{ results.0.user.profile.first_name }} {{ results.0.user.profile.last_name }}
+            </div>
+            <div class="result__correct-incorrect">
+                <img src="{% static 'app/assets/icon/Pie Chart 2.svg' %}" alt="">
+                {{ results.0.correct_answers }}/{{ results.0.total_questions }}
+            </div>
+            <div class="rating__time-spent">
+                <img src="{% static 'app/assets/icon/Alarm.svg' %}" alt="">
+                {{ results.0.time_taken|floatformat:0 }} minut
+            </div>
+            <button onclick="window.location.href={% url 'tests' %}" type="submit" class="result__back animation-button">
+                <img src="{% static 'app/assets/icon/Arrow Left.svg' %}" alt=""> Orqaga
+            </button>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

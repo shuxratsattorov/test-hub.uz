@@ -1,0 +1,100 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+<!-- ===============================================-->
+<!-- Title -->
+<!-- ===============================================-->
+
+{% block title %}
+    Profile
+{% endblock %}
+
+<!-- ===============================================-->
+<!-- Header -->
+<!-- ===============================================-->
+{% block content %}
+
+<!-- Section -->
+    <section class="main-section">
+        <div class="profile__container">
+            <form class="profile__card" method="POST" action="{% url 'profile_page' %}" id="profile" enctype="multipart/form-data" onclick="closeAllInputs(event)">
+                {% csrf_token %}
+                <input type="hidden" name="profile_edit" value="1">
+                <div class="profile__title">Shaxsiy ma'lumotlar</div>
+                {% if profile.image  %}
+                    <img class="profile__img" id="profile-pic" src="{{ profile.image.url }}" alt="Profile Picture">
+                {% else %}
+                    <img class="profile__img" id="profile-pic" src="{% static 'app/assets/icon/img.png' %}" alt="Profile Picture">
+                {% endif %}
+                <input class="profile__input add-test__focus" type="file" name="profile_pic" id="edit-pic" accept="image/*" style="display: none;">
+                <button type="button" class="profile__edit-icon edit" onclick="document.getElementById('edit-pic').click()">
+                    <img class="profile__icon" src="{% static 'app/assets/icon/Pen.svg' %}" alt="">
+                </button>
+                <div>
+                    <div class="profile__label">Ism:</div>
+                    <button type="button" class="profile__edit-icon" onclick="editField(event, 'first-name')">
+                        <img class="profile__icon" src="{% static 'app/assets/icon/Pen.svg' %}" alt="">
+                    </button>
+                    {% if profile.first_name %}
+                    <div class="profile__info" id="first-name">{{ profile.first_name }}</div>
+                    {% else %}
+                    <div class="profile__info" id="first-name"></div>
+                    {% endif %}
+                    <input class="profile__input add-test__focus" type="text" name="first-name" id="edit-first-name" style="display: none;">
+                </div>
+                <div>
+                    <div class="profile__label">Familiya:</div>
+                    <button type="button" class="profile__edit-icon" onclick="editField(event, 'last-name')">
+                        <img class="profile__icon" src="{% static 'app/assets/icon/Pen.svg' %}" alt="">
+                    </button>
+                    {% if profile.first_name %}
+                    <div class="profile__info" id="last-name">{{ profile.last_name }}</div>
+                    {% else %}
+                    <div class="profile__info" id="last-name"></div>
+                    {% endif %}
+                    <input class="profile__input add-test__focus" type="text" name="last-name" id="edit-last-name" style="display: none;">
+                </div>
+                <div>
+                    <div class="profile__label">Telefon raqam:</div>
+                    <button type="button" class="profile__edit-icon" onclick="editField(event, 'phone')">
+                        <img class="profile__icon" src="{% static 'app/assets/icon/Pen.svg' %}" alt="">
+                    </button>
+                    {% if profile.first_name %}
+                    <div class="profile__info" id="phone">{{ profile.phone_number }}</div>
+                    {% else %}
+                    <div class="profile__info" id="phone"></div>
+                    {% endif %}
+                    <input class="profile__input add-test__focus" type="text" name="phone" id="edit-phone" style="display: none;">
+                </div>
+                <button type="submit" class="profile__button animation-button">Saqlash</button>
+            </form>
+            <div class="profile__card" id="password-card" onclick="closeInputs(event)">
+                <div class="profile__title">Xafsizlik</div>
+                    <div class="profile__label">Parol:</div>
+                    <div class="profile__edit-icon" onclick="togglePasswordEdit(event)">
+                        <img class="profile__icon-password" src="{% static 'app/assets/icon/Pen.svg' %}" alt="">
+                    </div>
+                    <div id="password">
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                        <div class="profile__dot"></div>
+                    </div>
+                <form id="password-edit-form" style="display: none;" method="POST" action="/update-password">
+                    {% csrf_token %}
+                    <input type="hidden" name="password_edit" value="1">
+                    <input class="profile__input add-test__focus input-field" type="password" name="oldPassword" id="old-password" placeholder="Eski parolni kiriting" required />
+                    <input class="profile__input add-test__focus input-field" type="password" name="newPassword" id="new-password" placeholder="Yangi parol" required />
+                    <input class="profile__input add-test__focus input-field" type="password" name="confirmPassword" id="confirm-password" placeholder="Parolni tasdiqlang" required />
+                    <button type="submit" class="profile__button animation-button">Saqlash</button>
+                </form>
+            </div>
+        </div>
+    </section>
+<!-- /Section -->
+
+{% endblock %}

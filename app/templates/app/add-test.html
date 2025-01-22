@@ -1,0 +1,296 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+<!-- ===============================================-->
+<!-- Title -->
+<!-- ===============================================-->
+
+{% block title %}
+    Test qo'shish
+{% endblock %}
+
+<!-- ===============================================-->
+<!-- Header -->
+<!-- ===============================================-->
+{% block content %}
+
+<section class="main-section">
+        <div class="add-test">
+            <!-- Forms -->
+            <div class="add-test__form-container">
+                <div class="add-test__title"> Savol qo'shish <span class="add-test__question-count">({{ test.test_count }}/{{ current_question_count }})</span></div>
+                <form method="POST" class="add-test__form-question-with-answer" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Img Imput -->
+                    <div class="add-test__form-img">
+                        <label class="add-test__label add-test__label-img" for="file">Rasm:
+                            <div class="error">
+                                <p>error all</p>
+                            </div>
+                        </label>
+                        <label class="add-test__custom-file-upload" for="test-image">Yuklash</label>
+                        <span class="add-test__warning">5MB dan oshmasin</span>
+                        <input type="file" id="test-image" name="image" accept="image/*">
+                        <div class="img-error">
+                            <p>error img</p>
+                        </div>
+                    </div>
+                    <!-- /Img Img -->
+
+                    <!-- Question Input -->
+                    <div class="add-test__form-question">
+                        <label class="add-test__label" for="test-description">Savol:</label>
+                        <textarea class="add-test__question-input add-test__focus" id="test-description" name="question" rows="3" placeholder="Test haqida ma'lumot kiriting"></textarea>
+                        <div class="question-error">
+                            <p>error question</p>
+                        </div>
+                    </div>
+                    <!-- /Question Input -->
+
+                    <!-- Answer Input -->
+                    <div class="add-test__form-answer">
+                        <div id="input-container" class="input-row">
+                            <label class="add-test__label" for="test-options">Javoblar:
+                                <button class="add-test__add-input-button" type="button" id="add-input">+</button>
+                            </label>
+                            <div class="input-radio-pair">
+                                <input class="add-test__answer-input add-test__focus" type="text" name="answers-0-answer" placeholder="Javob 1 ni kiriting">
+                                <label class="custom-checkbox">
+                                    <input class="single-select" type="checkbox" id="option0" name="answers-0-is_correct" value="1">
+                                        <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="answer-error">
+                                <p>error answer</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="add-test__btn animation-button" type="submit" onclick="openModal()">Saqlash</button>
+                </form>
+                <!-- /Answer Input -->
+                <hr class="add-test__hr">
+                <div class="add-test__title">Asosiy malumot
+                    <span class="tooltip">?
+                        <span class="tooltip-text">Asosiy malumotlarni to'liq saqlaganingizdan keyin “Savol qo'shish” bo'limiga o'tishingiz mumkin!</span>
+                    </span>
+                    <div class="error">
+                        <p>error all</p>
+                    </div>
+                </div>
+                <form class="add-test__form-basic-information" method="POST" action="{% url 'add_test' %}">
+                {% csrf_token %}
+                <!-- Title Input -->
+                <div class="title-container">
+                    <label class="add-test__label" for="">Sarlavha:</label>
+                    <input class="add-test__title-input add-test__focus" name="title" type="text" placeholder="Sarlavha">
+                    <div class="title-error">
+                        <p>error title</p>
+                    </div>
+                </div>
+                <!-- /Title Input -->
+
+                <!-- Count Input -->
+                <div class="test-container">
+                    <label class="add-test__label add-test__label-count" for="">Savollar soni:</label>
+                    <select class="add-test__time-input add-test__select add-test__focus" name="test_count">
+                        <option value="15">15 ta</option>
+                        <option value="30">30 ta</option>
+                        <option value="60">60 ta</option>
+                        <option value="90">90 ta</option>
+                        <option value="120">120 ta</option>
+                    </select>
+                    <div class="test-count-error">
+                        <p>error test count</p>
+                    </div>
+                </div>
+                <!-- /Count Input -->
+
+                <!-- Deadline Input -->
+                {% if user.is_superuser %}
+                <div class="deadline-container">
+                    <label class="add-test__label add-test__label-deadline" for="">Kategoriya:</label>
+                    <select class="add-test__deadline-input add-test__select add-test__focus" name="category" id="category">
+                        <option value=""></option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if category.id == form.category.value %} selected {% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="deadline-error">
+                        <p>error deadline</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="deadline-container">
+                    <label class="add-test__label add-test__label-deadline" for="">Deadline:</label>
+                    <input class="add-test__deadline-input add-test__select add-test__focus" name="deadline" type="date">
+{#                    {% if test_form.clean_deadline.errors %}#}
+{#                    <div class="deadline-error">#}
+{#                        {% for error in test_form.deadline.errors %}#}
+{#                            <p>{{ error }}</p>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{#                    {% endif %}#}
+                </div>
+                {% endif %}
+                    <div class="deadline-error">
+                        <p>error deadline</p>
+                    </div>
+                <!-- /Deadline Input -->
+
+                <!-- Time Input -->
+                <div class="time-container">
+                    <label class="add-test__label add-test__label-time" for="">Vaqt:</label>
+                    <select class="add-test__time-input add-test__select add-test__focus" name="duration">
+                        <option value="0">0 minut</option>
+                        <option value="30">30 minut</option>
+                        <option value="60">60 minut</option>
+                        <option value="120">120 minut</option>
+                        <option value="240">240 minut</option>
+                    </select>
+                    <div class="time-error">
+                        <p>error time</p>
+                    </div>
+                </div>
+                <!-- /Time Input -->
+
+                <button class="add-test__btn animation-button" type="submit">Saqlash</button>
+            </form>
+            </div>
+            <!-- /Forms -->
+            <!-- Table -->
+            <div class="add-test__table">
+                <div class="add-test__table-header">
+                    <div class="add-test__table-header-title">Savollar ro'yxati</div>
+                <form action="">
+                    <select class="add-test__filter add-test__select">
+                        <option>Kamayish</option>
+                        <option value="">O'sish</option>
+                     </select>
+                </form>
+                <form action="">
+                    <select class="add-test__export add-test__select" name="export_option" id="export_option">
+                        <option value="">Export</option>
+                        <option value="json">JSON</option>
+                        <option value="excel">EXCEL</option>
+                     </select>
+                </form>
+                </div>
+                <div class="add-test__table-container">
+                <table class="add-test__tablee">
+                    <thead class="add-test__thead">
+                        <tr>
+                            <th>No:</th>
+                            <th>Sarlavha:</th>
+                            <th>Tog'ri javob:</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if not page_obj %}
+                        <div class="add-test__table-sms">
+                            <svg width="200" height="150" viewBox="0 0 250 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M153.672 64L162.974 131.843L163.809 138.649C164.079 140.842 162.519 142.837 160.327 143.107L101.767 150.297C99.5739 150.566 97.5781 149.007 97.3089 146.814L88.2931 73.3868C88.1585 72.2904 88.9381 71.2925 90.0345 71.1579C90.0414 71.1571 90.0483 71.1563 90.0553 71.1555L94.9136 70.6105M98.8422 70.1698L103.429 69.6553L98.8422 70.1698Z" fill="white"/>
+                                <path d="M154.91 63.8302C154.817 63.1463 154.186 62.6678 153.502 62.7616C152.818 62.8554 152.34 63.4859 152.433 64.1698L154.91 63.8302ZM162.974 131.843L164.214 131.69C164.214 131.685 164.213 131.679 164.212 131.673L162.974 131.843ZM163.809 138.649L165.05 138.497L163.809 138.649ZM160.327 143.107L160.479 144.347L160.327 143.107ZM101.767 150.297L101.919 151.538L101.767 150.297ZM97.3089 146.814L98.5496 146.662L97.3089 146.814ZM90.0553 71.1555L90.1946 72.3977L90.0553 71.1555ZM95.053 71.8527C95.739 71.7758 96.2328 71.1572 96.1558 70.4712C96.0789 69.7851 95.4603 69.2913 94.7743 69.3683L95.053 71.8527ZM98.7028 68.9276C98.0168 69.0046 97.523 69.6231 97.5999 70.3092C97.6769 70.9952 98.2954 71.489 98.9815 71.412L98.7028 68.9276ZM103.569 70.8975C104.255 70.8205 104.748 70.202 104.671 69.5159C104.594 68.8299 103.976 68.3361 103.29 68.4131L103.569 70.8975ZM152.433 64.1698L161.735 132.013L164.212 131.673L154.91 63.8302L152.433 64.1698ZM161.733 131.995L162.569 138.801L165.05 138.497L164.214 131.69L161.733 131.995ZM162.569 138.801C162.754 140.309 161.682 141.681 160.174 141.866L160.479 144.347C163.357 143.994 165.404 141.375 165.05 138.497L162.569 138.801ZM160.174 141.866L101.614 149.056L101.919 151.538L160.479 144.347L160.174 141.866ZM101.614 149.056C100.107 149.241 98.7347 148.169 98.5496 146.662L96.0682 146.967C96.4216 149.845 99.041 151.891 101.919 151.538L101.614 149.056ZM98.5496 146.662L89.5338 73.2344L87.0524 73.5391L96.0682 146.967L98.5496 146.662ZM89.5338 73.2344C89.4833 72.8233 89.7757 72.4491 90.1868 72.3986L89.8821 69.9173C88.1006 70.136 86.8337 71.7576 87.0524 73.5391L89.5338 73.2344ZM90.1868 72.3986C90.1894 72.3983 90.192 72.398 90.1946 72.3977L89.9159 69.9133C89.9046 69.9145 89.8934 69.9159 89.8821 69.9173L90.1868 72.3986ZM90.1946 72.3977L95.053 71.8527L94.7743 69.3683L89.9159 69.9133L90.1946 72.3977ZM98.9815 71.412L103.569 70.8975L103.29 68.4131L98.7028 68.9276L98.9815 71.412Z" fill="#7239EA"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M151.14 68.2692L159.56 129.753L160.317 135.921C160.561 137.908 159.167 139.715 157.203 139.956L104.761 146.395C102.798 146.636 101.008 145.22 100.764 143.233L92.6141 76.8568C92.4795 75.7605 93.2592 74.7626 94.3555 74.628L100.843 73.8314" fill="#7239EA" fill-opacity="0.1"/>
+                                <path d="M107.922 54C107.922 52.4812 109.153 51.25 110.672 51.25H156.229C156.958 51.25 157.657 51.5395 158.173 52.0549L171.616 65.4898C172.132 66.0056 172.422 66.7053 172.422 67.4349V130C172.422 131.519 171.191 132.75 169.672 132.75H110.672C109.153 132.75 107.922 131.519 107.922 130V54Z" fill="white" stroke="#7239EA" stroke-width="2.5"/>
+                                <path d="M156.672 52.4028V64C156.672 65.6569 158.015 67 159.672 67H167.605" stroke="#7239EA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M118 118H144M118 67H144H118ZM118 79H161H118ZM118 92H161H118ZM118 105H161H118Z" stroke="#7239EA" stroke-opacity="0.1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <h3>Ma'lumot yo'q</h3>
+                        </div>
+                    {% else %}
+                        <tr class="add-test__table-row table-row">
+                            <td>{{ test_table.question_number }}</td>
+                            <td class="td-title"><div class="scroll-text">{{ test_table.question }}</div></td>
+                            <td>
+                                {% for is_correct in answer %}
+
+                                    {% if is_correct.is_correct == True %}
+                                        {{ is_correct.option }}
+                                    {% endif %}
+
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <img src="{% static 'app/assets/icon/Menu Dots.svg' %}" class="menu-btn" alt="Menu Dots">
+                                <div class="context-menu">
+                                    <button class="update-btn">O'zgartirish</button>
+                                    <form method="post" action="{% url 'delete_question_with_answers' hash_id=hash_id question_id=test_table.id %}">
+                                    {% csrf_token %}
+                                        <button type="submit" class="delete-btn">O'chirish</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    {% endif %}
+                </table>
+                <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <button class="btn-pagination" type="button" onclick="location.href='?page={{ page_obj.previous_page_number }}&filter={{ filter_option }}'"> < </button>
+                {% else %}
+                    <button class="btn-pagination" type="button" disabled> < </button>
+                {% endif %}
+
+                {% if page_obj.number > 3 %}
+                    <a class="btn-pagination" href="?page=1&filter={{ filter_option }}">1</a>
+                {% if page_obj.number > 4 %}
+                    <a class="btn-pagination"><span class="fas fa-ellipsis-h">...</span></a>
+                {% endif %}
+                {% endif %}
+
+                {% for page_num in page_obj.paginator.page_range %}
+                    {% if page_num >= page_obj.number|add:'-2' and page_num <= page_obj.number|add:'2' %}
+                    {% if page_num == page_obj.number %}
+                        <a class="btn-pagination pagination-active" href="?page={{ page_num }}&filter={{ filter_option }}">{{ page_num }}</a>
+                    {% else %}
+                        <a class="btn-pagination" href="?page={{ page_num }}&filter={{ filter_option }}">{{ page_num }}</a>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                        <a class="btn-pagination"><span class="fas fa-ellipsis-h">...</span></a>
+                    {% endif %}
+                        <a class="btn-pagination" href="?page={{ page_obj.paginator.num_pages }}&filter={{ filter_option }}">{{ page_obj.paginator.num_pages }}</a>
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <button class="btn-pagination" type="button" onclick="location.href='?page={{ page_obj.next_page_number }}&filter={{ filter_option }}'"> > </button>
+                    {% else %}
+                        <button class="btn-pagination" type="button" disabled> > </button>
+                {% endif %}
+                </div>
+{#                <div class="pagination">#}
+{#                    <button class="btn-pagination" type="button">#}
+{#                        <span class="fas fa-chevron-left"><</span>#}
+{#                    </button>#}
+{#                    <a class="btn-pagination" href="#!">1</a>#}
+{#                    <a class="btn-pagination pagination-active" href="#!">2</a>#}
+{#                    <a class="btn-pagination" href="#!">#}
+{#                        <span class="fas fa-ellipsis-h">...</span>#}
+{#                    </a>#}
+{#                    <a class="btn-pagination" href="#!">30</a>#}
+{#                    <button class="btn-pagination" type="button">#}
+{#                        <span class="fas fa-chevron-right">></span>#}
+{#                    </button>#}
+{#                </div>#}
+                </div>
+            </div>
+            <!-- /Table -->
+        </div>
+
+        <!-- Modal -->
+        <div class="modal" id="deleteModal">
+            <div class="modal-content">
+            <div class="modal-title"><span>ID:</span> 5447679</div>
+            <input type="text" placeholder="Tasdiqlash kodi">
+                <button class="confirm-btn animation-button" onclick="confirmDelete()">Tasdiqlash</button>
+                <button class="cancel-btn" onclick="closeModal()"><div class="close-icon"></div></button>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
