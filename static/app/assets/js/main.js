@@ -1,4 +1,3 @@
-// *** Bildirishnoma sahifasi o'zgarishlari ***
 // Bildirishnoma sahifasini ochish/yopish uchun ishlatiladi
 function toggleNotificationPage(event) {
     event.stopPropagation(); // Tashqi bosishlarni bloklash
@@ -40,7 +39,7 @@ document.getElementById('add-input').addEventListener('click', function () {
             <input class="single-select" type="checkbox" id="option${nameIndex}" name="answers-${nameIndex}-is_correct" value="${nameIndex}">
             <span class="checkmark"></span>
             </label>
-            <button type="button" class="delete-btn"><img src="assets/icon/delete.svg"></button>
+            <button type="button" class="delete-btn"><img src=".app/static/app/assets/icon/delete.svg"></button>
             <div class="answer-error">
                 <p>error answer</p>
             </div>

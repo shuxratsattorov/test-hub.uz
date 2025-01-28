@@ -32,29 +32,36 @@
             <div class="buttom-items">
                 <div class="search-test-card-count">Testlar soni: {{ test.test_count }}</div>
                 <div class="search-test-card-time">Berilgan vaqt: {{ test.duration }} minut</div>
-                <div class="search-test-card-deadline">Deadline: {{ test.deadline }} kun</div>
+                <div class="search-test-card-deadline">Deadline: {{ test.deadline }} </div>
             </div>
         </a>
         {% endfor %}
+
+        {% for category in categories %}
         <div class="addition-test">
             <div class="addition-test-title">
-                Testlar to'plami:
+                {{ category.name }}{{ category.count }}:
             </div>
             <div class="addition-test-container">
-                <a href="#" class="addition-test-cards">
-                    <div class="img-container">
-                        <img class="addition-test-card-img" src="{% static 'app/assets/icon/img.png' %}" alt="">
-                    </div>
-                    <div class="addition-test-card-title">Avto test</div>
-                    <div class="addition-test-card-count"><span>Savolar soni:</span> 90</div>
-                    <div class="addition-test-card-description" id="description">
-                        <button class="expand-btn" id="expandBtn"><img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Down.svg' %}" alt=""></button>
-                        <span>Tavsif:</span>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis voluptatem pariatur unde facere sint eligendi fugiat voluptates. Quo, laudantium recusandae.
-                    </div>
-                </a>
+                {% for test in category.tests.all %}
+                    {% if test.test_ids %}
+                        <a href="{% url 'view_test' test.test_ids 1 %}" class="addition-test-cards">
+                            <div class="img-container">
+                                <img class="addition-test-card-img" src="{{ test.image_card.url }}">
+                            </div>
+                            <div class="addition-test-card-title">{{ test.title }}</div>
+                            <div class="addition-test-card-count"><span>Savolar soni:</span> {{ test.test_count }}</div>
+                            <div class="addition-test-card-description" id="description">
+                                <button class="expand-btn" id="expandBtn"><img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Down.svg' %}" alt=""></button>
+                                <span>Tavsif:</span>
+                                {{ test.description_card }}
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
+        {% endfor %}
 
         <!-- Modal -->
         <div class="modal" id="deleteModal">
@@ -70,6 +77,26 @@
             </form>
             </div>
         </div>
-    </section>
+</section>
+
+<script>
+        const buttons = document.querySelectorAll('.expand-btn');
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', function () {
+                const card = button.closest('.addition-test-cards');
+
+                const description = card.querySelector('.addition-test-card-description');
+
+                description.classList.toggle('expanded');
+
+                if (description.classList.contains('expanded')) {
+                    button.innerHTML = '<img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Up.svg' %}">';
+                } else {
+                    button.innerHTML = '<img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Down.svg' %}">';
+                }
+            });
+        });
+</script>
 
 {% endblock %}

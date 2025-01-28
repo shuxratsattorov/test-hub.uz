@@ -10,28 +10,16 @@ from app.managers import CustomUserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=100)
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     last_test_time = models.DateTimeField(null=True, blank=True)
-    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    verification_code = models.CharField(max_length=255, blank=True, null=True)
     verification_code_created_at = models.DateTimeField(null=True, blank=True)
 
     objects = CustomUserManager()
-
     USERNAME_FIELD = 'email'
-
     REQUIRED_FIELDS = []
-
-    def generate_verification_code(self):
-        return str(random.randint(100000, 999999))
-
-    def is_code_expired(self):
-        if not self.verification_code_created_at:
-            return True
-        expiration_time = self.verification_code_created_at + timedelta(minutes=1)
-        return timezone.now() > expiration_time
 
 
 class Profile(models.Model):
@@ -46,17 +34,8 @@ class Profile(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=45, null=True, blank=True)
 
-    def __str__(self):
-        return self.name
-
-
-# class CoverCard(models.Model):
-#     image = models.ImageField(upload_to='covercard/', null=True, blank=True)
-#     description = models.TextField(null=True, blank=True)
-
 
 class Test(models.Model):
-
     class TestCountChoices(models.IntegerChoices):
         FIFTEEN = 15, '15 ta'
         THIRTY = 30, '30 ta'
@@ -71,9 +50,10 @@ class Test(models.Model):
         ONE_HUNDRED_TWENTY_MINUTES = 120, '120 minut'
         TWO_HUNDRED_FORTY_MINUTES = 240, '240 minut'
 
-    test_count = models.IntegerField()
+    image_card = models.ImageField(upload_to='test/', null=True, blank=True)
+    description_card = models.TextField(null=True, blank=True)
+    test_count = models.IntegerField(null=True, blank=True)
     title = models.CharField(max_length=255, null=True, blank=True)
-    image = models.ImageField(upload_to='test/', null=True, blank=True)
     duration = models.IntegerField(null=True, blank=True, default=0)
     deadline = models.DateField(null=True, blank=True)
     test_ids = models.IntegerField(null=True, blank=True)
@@ -88,13 +68,6 @@ class Test(models.Model):
             if not Test.objects.filter(test_ids=random_id).exists():
                 return random_id
 
-    def __str__(self):
-
-        if self.title:
-            return f"{self.id} {self.title}"
-        else:
-            return f"Ma'lumot kiritilmagan"
-
 
 class Question(models.Model):
     question = models.TextField()
@@ -102,18 +75,12 @@ class Question(models.Model):
     question_number = models.IntegerField(null=True, blank=True)
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
 
-    def __str__(self):
-        return self.question
-
 
 class Answer(models.Model):
     answer = models.CharField(max_length=255)
     option = models.CharField(max_length=255, null=True, blank=True)
     is_correct = models.BooleanField(default=False)
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
-
-    def __str__(self):
-        return self.answer
 
 
 class Result(models.Model):

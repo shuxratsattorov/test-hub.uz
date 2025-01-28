@@ -49,6 +49,7 @@
 
                     <!-- Answer Input -->
                     <div class="add-test__form-answer">
+                        {{ formset.management_form }}
                         <div id="input-container" class="input-row">
                             <label class="add-test__label" for="test-options">Javoblar:
                                 <button class="add-test__add-input-button" type="button" id="add-input">+</button>
@@ -199,16 +200,15 @@
                             <h3>Ma'lumot yo'q</h3>
                         </div>
                     {% else %}
+                        {% for test_table in page_obj %}
                         <tr class="add-test__table-row table-row">
                             <td>{{ test_table.question_number }}</td>
                             <td class="td-title"><div class="scroll-text">{{ test_table.question }}</div></td>
                             <td>
-                                {% for is_correct in answer %}
-
-                                    {% if is_correct.is_correct == True %}
-                                        {{ is_correct.option }}
-                                    {% endif %}
-
+                               {% for ans in test_table.answers.all %}
+                                   {% if ans.is_correct %}
+                                       {{ ans.option }}
+                                   {% endif %}
                                 {% endfor %}
                             </td>
                             <td>
@@ -222,6 +222,7 @@
                                 </div>
                             </td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                     {% endif %}
                 </table>
@@ -262,20 +263,6 @@
                         <button class="btn-pagination" type="button" disabled> > </button>
                 {% endif %}
                 </div>
-{#                <div class="pagination">#}
-{#                    <button class="btn-pagination" type="button">#}
-{#                        <span class="fas fa-chevron-left"><</span>#}
-{#                    </button>#}
-{#                    <a class="btn-pagination" href="#!">1</a>#}
-{#                    <a class="btn-pagination pagination-active" href="#!">2</a>#}
-{#                    <a class="btn-pagination" href="#!">#}
-{#                        <span class="fas fa-ellipsis-h">...</span>#}
-{#                    </a>#}
-{#                    <a class="btn-pagination" href="#!">30</a>#}
-{#                    <button class="btn-pagination" type="button">#}
-{#                        <span class="fas fa-chevron-right">></span>#}
-{#                    </button>#}
-{#                </div>#}
                 </div>
             </div>
             <!-- /Table -->
@@ -290,7 +277,93 @@
                 <button class="cancel-btn" onclick="closeModal()"><div class="close-icon"></div></button>
             </div>
         </div>
-    </section>
+</section>
+
+<script src="{% static 'app/assets/js/add_test/scrollTextAnimation.js' %}"></script>
+<script src="{% static 'app/assets/js/add_test/renumberTableRows.js' %}"></script>
+<script src="{% static 'app/assets/js/add_test/dropdownMenu.js' %}"></script>
+
+<script>
+    document.getElementById("export_option").addEventListener("change", function() {
+        const exportType = this.value;
+        const hashId = "{{ hash_id }}";
+
+        if (!hashId) {
+            return;
+        }
+
+        let exportUrl = '';
+        if (exportType === "json") {
+            exportUrl = `/export/json/${hashId}/`;
+        } else if (exportType === "excel") {
+            exportUrl = `/export/excel/${hashId}/`;
+        }
+
+        if (exportUrl) {
+            window.location.href = exportUrl;
+        }
+    });
+</script>
+
+<script>
+    const maxInputs = 5;
+    let inputCount = 1;
+
+    document.getElementById('add-input').addEventListener('click', function () {
+        if (inputCount < maxInputs) {
+            const inputContainer = document.getElementById('input-container');
+            const newInputDiv = document.createElement('div');
+            newInputDiv.classList.add('input-radio-pair');
+
+            const nameIndex = inputCount;
+
+            newInputDiv.innerHTML = `
+                <input class="add-test__answer-input add-test__answer-input-js" type="text" name="answers-${nameIndex}-answer" placeholder="Variant ${inputCount + 1} ni kiriting">
+                <label class="custom-checkbox">
+                <input class="single-select" type="checkbox" id="option${nameIndex}" name="answers-${nameIndex}-is_correct" value="${nameIndex}">
+                <span class="checkmark"></span>
+                </label>
+                <button type="button" class="delete-btn"><img src="{% static 'app/assets/icon/delete.svg' %}"></button>
+                <div class="answer-error">
+                    <p>error answer</p>
+                </div>
+        `;
+
+        inputContainer.appendChild(newInputDiv);
+        inputCount++;
+
+        const deleteButton = newInputDiv.querySelector('.delete-btn');
+            deleteButton.addEventListener('click', function () {
+                newInputDiv.remove();
+                inputCount--;
+                updateInputNames();
+            });
+
+            newInputDiv.querySelector('.single-select').addEventListener('change', handleSingleSelect);
+        }
+    });
+
+    function handleSingleSelect() {
+        const checkboxes = document.querySelectorAll('.single-select');
+        checkboxes.forEach((checkbox) => {
+            if (checkbox !== this) {
+                checkbox.checked = false;
+            }
+        });
+    }
+
+    function updateInputNames() {
+        const inputPairs = document.querySelectorAll('.input-radio-pair');
+        inputPairs.forEach((pair, index) => {
+            const textInput = pair.querySelector('input[type="text"]');
+            const checkboxInput = pair.querySelector('input[type="checkbox"]');
+
+            textInput.name = `answers-${index}-answer`;
+            checkboxInput.id = `option${index}`;
+            checkboxInput.value = index;
+        });
+    }
+</script>
+
 
 {% endblock %}
-

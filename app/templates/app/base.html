@@ -16,7 +16,7 @@
     {% if messages %}
         <div id="notification-message" class="notification-message">
             {% for message in messages %}
-                <p>{{ message }}</p>
+                <p> {{ message }} </p>
             {% endfor %}
         </div>
     {% endif %}
@@ -139,145 +139,11 @@
     <!-- /Overlay -->
 
     <!-- Scripts -->
-    <script src="{% static 'app/assets/js/script.js' %}"></script>
-    <script src="{% static 'app/assets/js/nav-menu.js' %}"></script>
-    <script src="{% static 'app/assets/js/main.js' %}"></script>
-    <script src="{% static 'app/assets/js/anim-btn.js' %}"></script>
-    <script>
-        document.querySelectorAll('.view-test-answer').forEach(button => {
-        button.addEventListener('click', () => {
-        // Qo'shimcha CSS sinfini qo'shish
-        button.classList.add('view-test-red-temporary');
-
-        // 3 soniyadan so'ng CSS sinfini olib tashlash
-        setTimeout(() => {
-            button.classList.remove('view-test-red-temporary');
-        }, 1000); // 3000 millisekund = 3 soniya
-        });
-        });
-    </script>
+    <script src="{% static 'app/assets/js/nav_menu/nav-menu.js' %}"></script>
+    <script src="{% static 'app/assets/js/nav_menu/buttonAnimationTableRowHighlighting.js' %}"></script>
+    <script src="{% static 'app/assets/js/add_test/modalActions.js' %}"></script>
+    <script src="{% static 'app/assets/js/nav_menu/notificationPage.js' %}"></script>
+    <script src="{% static 'app/assets/js/nav_menu/displayMessage.js' %}"></script>
     <!-- /Scripts -->
-     <script>
-        const carousel = document.querySelector('.carousel');
-        const leftBtn = document.querySelector('.left-btn');
-        const rightBtn = document.querySelector('.right-btn');
-
-        leftBtn.addEventListener('click', () => {
-        carousel.scrollBy({
-        left: -100,
-        behavior: 'smooth'
-        });
-        });
-
-        rightBtn.addEventListener('click', () => {
-        carousel.scrollBy({
-        left: 100,
-        behavior: 'smooth'
-        });
-        });
-     </script>
-     <script>
-        // Select all buttons with the class 'expand-btn'
-        const buttons = document.querySelectorAll('.expand-btn');
-
-        // Add event listener to each button
-        buttons.forEach((button) => {
-            button.addEventListener('click', function () {
-                // Find the parent card
-                const card = button.closest('.addition-test-cards');
-
-                // Find the description inside the parent card
-                const description = card.querySelector('.addition-test-card-description');
-
-                // Toggle the expanded state
-                description.classList.toggle('expanded');
-
-                // Update button content based on the state
-                if (description.classList.contains('expanded')) {
-                    button.innerHTML = '<img class="expand-btn-icon" src="assets/icon/Alt Arrow Up.svg" alt="Collapse">'; // Change to up arrow image
-                } else {
-                    button.innerHTML = '<img class="expand-btn-icon" src="assets/icon/Alt Arrow Down.svg" alt="Expand">'; // Change to down arrow image
-                }
-            });
-        });
-    </script>
-
-    <script>
-        const modal = document.getElementById('deleteModal');
-
-        // Modalni ochish funksiyasi
-        function openModal() {
-          modal.style.display = 'flex';
-        }
-
-        // Modalni yopish funksiyasi
-        function closeModal() {
-          modal.style.display = 'none';
-        }
-
-        // Tasdiqlash funksiyasi
-        function confirmDelete() {
-          // Bu yerda o'chirish amali bajariladi (hozircha faqat modalni yopamiz)
-          closeModal();
-        }
-      </script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        let remainingTime = {{ remaining_time|safe }};  // Vaqtni serverdan olish (soniyalarda)
-
-        const timerElement = document.getElementById('timer');
-        const updateTimer = () => {
-            if (remainingTime <= 0) {
-                timerElement.textContent = '00:00';
-                return;
-            }
-
-            const minutes = Math.floor(remainingTime / 60);
-            const seconds = remainingTime % 60;
-            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            remainingTime -= 1; // Vaqtni kamaytirish
-        };
-
-        setInterval(updateTimer, 1000); // Har 1 soniyada yangilash
-        updateTimer(); // Dastlabki yangilash
-    });
-</script>
-<script>
-        const modal = document.getElementById('deleteModal');
-
-        // Modalni ochish funksiyasi
-        function openModal() {
-          modal.style.display = 'flex';
-        }
-
-        // Modalni yopish funksiyasi
-        function closeModal() {
-          modal.style.display = 'none';
-        }
-
-        // Tasdiqlash funksiyasi
-        function confirmDelete() {
-          // Bu yerda o'chirish amali bajariladi (hozircha faqat modalni yopamiz)
-          closeModal();
-        }
-      </script>
-      <script>
-        // Jadvalni qayta raqamlash funktsiyasi
-        function renumberTableRows() {
-          // Barcha `<tr>` elementlarini topish
-          const rows = document.querySelectorAll('.add-test__table-row');
-
-          // Har bir `<tr>` elementiga raqam berish
-          rows.forEach((row, index) => {
-            const firstCell = row.querySelector('td:first-child'); // Birinchi `<td>`ni topish
-            if (firstCell) {
-              firstCell.textContent = index + 1; // Raqamni yangilash
-            }
-          });
-        }
-
-        // Funksiyani chaqirish
-        renumberTableRows();
-      </script>
 </body>
 </html>

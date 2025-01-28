@@ -4,11 +4,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tasdiqlash</title>
+  <title>TestHub | Tasdiqlash</title>
   <link rel="stylesheet" href="{% static 'app/assets/css/base.css' %}">
   <link rel="stylesheet" href="{% static 'app/assets/css/style.css' %}">
 </head>
 <body class="verification-body">
+  {% if messages %}
+        <div id="notification-message" class="notification-message">
+            {% for message in messages %}
+                <p> {{ message }} </p>
+            {% endfor %}
+        </div>
+    {% endif %}
   <div class="verification-container">
     <div class="verification-container__left">
       <div class="verification-container__item">
@@ -17,19 +24,19 @@
       </div>
       <form method="POST" onsubmit="combineCode(event)">
         {% csrf_token %}
-        <input type="text" class="input-box" id="code1" maxlength="1" oninput="moveFocus(1)" onkeydown="handleBackspace(event, 1)" />
-        <input type="text" class="input-box" id="code2" maxlength="1" oninput="moveFocus(2)" onkeydown="handleBackspace(event, 2)" />
-        <input type="text" class="input-box" id="code3" maxlength="1" oninput="moveFocus(3)" onkeydown="handleBackspace(event, 3)" />
-        <input type="text" class="input-box" id="code4" maxlength="1" oninput="moveFocus(4)" onkeydown="handleBackspace(event, 4)" />
-        <input type="text" class="input-box" id="code5" maxlength="1" oninput="moveFocus(5)" onkeydown="handleBackspace(event, 5)" />
-        <input type="text" class="input-box" id="code6" maxlength="1" oninput="moveFocus(6)" onkeydown="handleBackspace(event, 6)" />
+        <input type="text" class="input-box" id="code1" maxlength="1" oninput="moveFocus(1);" onkeydown="handleBackspace(event, 1)" />
+        <input type="text" class="input-box" id="code2" maxlength="1" oninput="moveFocus(2);" onkeydown="handleBackspace(event, 2)" />
+        <input type="text" class="input-box" id="code3" maxlength="1" oninput="moveFocus(3);" onkeydown="handleBackspace(event, 3)" />
+        <input type="text" class="input-box" id="code4" maxlength="1" oninput="moveFocus(4);" onkeydown="handleBackspace(event, 4)" />
+        <input type="text" class="input-box" id="code5" maxlength="1" oninput="moveFocus(5);" onkeydown="handleBackspace(event, 5)" />
+        <input type="text" class="input-box" id="code6" maxlength="1" oninput="moveFocus(6);" onkeydown="handleBackspace(event, 6)" />
       <input type="hidden" name="verification_code" id="fullCode" />
       <br>
       <button class="verification-button" type="submit">Tasdiqlash</button>
     </form>
     </div>
     <div class="register-without-login">
-      <h3>Amal qilish vaqti: <span>0:00</span></h3>
+      <h3>Amal qilish vaqti: <span id="timer">0:00</span></h3>
       <form method="POST">
         {% csrf_token %}
             <button type="submit" name="resend_code">Yangi kod so'rash</button>
@@ -48,6 +55,28 @@
       </svg>
     </div>
   </div>
-  <script src="{% static 'app/assets/js/verification-code.js' %}"></script>
+  <script src="{% static 'app/assets/js/login_register/codeValidation.js' %}"></script>
+  <script src="{% static 'app/assets/js/nav_menu/displayMessage.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let remainingTime = {{ remaining_time|safe }};
+
+        const timerElement = document.getElementById('timer');
+        const updateTimer = () => {
+            if (remainingTime <= 0) {
+                timerElement.textContent = '00:00';
+                return;
+            }
+
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            remainingTime -= 1;
+        };
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+    });
+</script>
 </body>
 </html>

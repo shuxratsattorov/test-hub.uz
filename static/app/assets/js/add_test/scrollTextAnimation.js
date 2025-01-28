@@ -1,5 +1,6 @@
+// Matnli bloklarni ekranda harakatlantirish uchun ishlatiladi
 const scrollTexts = document.querySelectorAll('.scroll-text');
-const speed = 0.5; // Matn harakat tezligi
+const speed = 0.5;
 
 function animateText(scrollText) {
     let position = 0;
@@ -7,21 +8,14 @@ function animateText(scrollText) {
     const textWidth = scrollText.scrollWidth;
 
     function animate() {
-        // Agar matn to'liq o'ng tomonga chiqib ketsa, yana chapdan boshlanadi
         if (position >= containerWidth) {
-            position = -textWidth; // Matnni chap tomonga tashlaymiz
+            position = -textWidth;
         }
-
-        // Matnni harakatlantirish
         position += speed;
         scrollText.style.transform = `translateX(${position}px)`;
-
-        // Har 20ms da qaytadan chaqiramiz
         requestAnimationFrame(animate, 30);
     }
-
     animate();
 }
 
-// Barcha .scroll-text elementlari uchun animatsiyani boshlaymiz
 scrollTexts.forEach(scrollText => animateText(scrollText));

@@ -1,36 +1,27 @@
-import random
 from datetime import timedelta
 
 import openpyxl
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q, ExpressionWrapper, FloatField
-from django.http import Http404
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
-from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import strip_tags
 from django.utils.timezone import now
 from hashids import Hashids
 from openpyxl.styles import Font
 
-from .forms import RegisterForm
-from .forms import TestForm, QuestionForm, AnswerFormSet, LoginForm
-from .models import Test, Question, Answer, Result, Notification, Profile, User, CorrectIncorrect, Category
+from app.forms import TestForm, QuestionForm, AnswerFormSet
+from app.models import Test, Question, Answer, Result, Notification, Profile, CorrectIncorrect, Category
 
 hashids = Hashids(min_length=70, salt="your_salt")
 
 
 @login_required
-def tests(request):
+def tests_page(request):
     test_id_query = request.GET.get('test_ids', '')
     categories = Category.objects.exclude(id=1).prefetch_related('tests')
 
@@ -41,8 +32,10 @@ def tests(request):
 
     test_password = request.POST.get('test_password', '')
     if test_password:
-        if Test.objects.filter(test_password=test_password).exists():
-            test_instance = Test.objects.get(test_password=test_password)
+        tests_with_password = Test.objects.filter(test_password=test_password, test_ids=test_id_query)
+
+        if tests_with_password.exists():
+            test_instance = tests_with_password.first()
             return redirect('view_test', test_ids=test_instance.test_ids, question_number=1)
         else:
             messages.error(request, "Parol noto‘g‘ri!")
@@ -57,7 +50,7 @@ def tests(request):
 
 
 @login_required
-def view_test(request, test_ids, question_number=1):
+def test_view_page(request, test_ids, question_number=1):
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
@@ -191,7 +184,7 @@ def test_result(request, test_id):
 
 
 @login_required
-def add_test(request):
+def test_add_page(request):
     user = request.user
 
     last_test_time = user.last_test_time
@@ -332,7 +325,7 @@ def delete_question_with_answers(request, hash_id, question_id):
 
 
 @login_required
-def rating_view(request, test_id):
+def test_rating_page(request, test_id):
     test = Test.objects.get(id=test_id)
 
     current_date = timezone.now().date()
@@ -479,133 +472,3 @@ def export_questions_as_excel(request, hash_id):
 
     workbook.save(response)
     return response
-
-
-def login_page(request):
-    form = LoginForm()
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, email=email, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return redirect('tests')
-            else:
-                messages.add_message(
-                    request,
-                    level=messages.WARNING,
-                    message='User not found'
-                )
-
-    return render(request, 'app/login.html', {'form': form})
-
-
-def logout_page(request):
-    if request.method == 'GET':
-        logout(request)
-        return redirect(reverse('login'))
-
-
-def generate_verification_code():
-    return random.randint(100000, 999999)
-
-
-def generate_new_verification_code(user):
-    verification_code = hashids.encode(generate_verification_code())
-    user.verification_code = verification_code
-    user.verification_code_created_at = timezone.now()
-    user.save()
-
-    decoded_code = hashids.decode(verification_code)[0]
-
-    subject = 'Email manzilingizni tasdiqlang'
-    html_message = render_to_string('app/email_verification.html', {'verification_code': decoded_code})
-    plain_message = strip_tags(html_message)
-    from_email = 'test-hub.uz <no-reply@example.com>'
-    recipient_list = [user.email]
-
-    send_mail(
-        subject,
-        plain_message,
-        from_email,
-        recipient_list,
-        html_message=html_message,
-        fail_silently=False,
-    )
-
-
-User = get_user_model()
-
-
-def register_page(request):
-    form = RegisterForm()
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
-            user = User.objects.create_user(email=email, password=password)
-            user.is_active = False
-            user.save()
-
-            generate_new_verification_code(user)
-
-            messages.info(request, 'Tasdiqlash kodi email manzilingizga yuborildi.')
-
-            total_users = User.objects.count()
-            subject = "Yangi foydalanuvchi ro'yxatdan o'tdi"
-            message = f"User: {email}\nJami foydalanuvchilar soni: {total_users}"
-            from_email = 'shuhratsattorov2004@gmail.com'
-            recipient_list = ['shuhratsattorov2004@gmail.com']
-
-            send_mail(
-                subject,
-                message,
-                from_email,
-                recipient_list
-            )
-
-            return redirect('email_verification', verification_code=user.verification_code)
-
-    return render(request, 'app/register.html', {'form': form})
-
-
-def verify_email(request, verification_code):
-    try:
-        profile = User.objects.get(verification_code=verification_code)
-    except User.DoesNotExist:
-        raise Http404("Tasdiqlash kodi noto'g'ri yoki muddati o'tgan.")
-
-    code_expired = profile.is_code_expired()
-
-    if request.method == 'POST':
-        if 'resend_code' in request.POST:
-            generate_new_verification_code(profile)
-            messages.success(request, 'Yangi tasdiqlash kodi email manzilingizga yuborildi.')
-            return redirect('email_verification', verification_code=profile.verification_code)
-
-        elif 'verification_code' in request.POST:
-            entered_code = request.POST.get('verification_code')
-
-            decoded_code = hashids.decode(profile.verification_code)[0]
-
-            if entered_code == str(decoded_code) and not code_expired:
-                user = profile
-                user.is_active = True
-                user.verification_code = None
-                user.save()
-                return redirect('login')
-            elif code_expired:
-                messages.error(request, 'Tasdiqlash kodi muddati tugagan. Iltimos, yangi kod so‘rang.')
-            else:
-                messages.error(request, 'Tasdiqlash kodi noto‘g‘ri.')
-
-    context = {
-        'verification_code': verification_code,
-        'code_expired': code_expired
-    }
-
-    return render(request, 'app/verification_code.html', context)

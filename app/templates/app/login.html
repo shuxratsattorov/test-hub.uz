@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>TestHub | Kirish</title>
     <link rel="stylesheet" href="{% static 'app/assets/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'app/assets/css/base.css' %}">
 </head>
@@ -50,7 +50,25 @@
             </svg>
         </div>
     </div>
-    <script src="{% static 'app/assets/js/eye.js' %}"></script>
-    <script src="{% static 'app/assets/js/autocomplete.js' %}"></script>
+
+    <!-- Scripts -->
+    <script src="{% static 'app/assets/js/login_register/autocomplete.js' %}"></script>
+    <script>
+        function togglePassword(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const eyeIcon = document.getElementById(iconId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.src = "{% static 'app/assets/icon/eye closed.svg' %}";
+                eyeIcon.alt = "Hide Password";
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.src = "{% static 'app/assets/icon/eye opened.svg' %}";
+                eyeIcon.alt = "Show Password";
+            }
+        }
+    </script>
+    <!-- /Scripts -->
 </body>
 </html>

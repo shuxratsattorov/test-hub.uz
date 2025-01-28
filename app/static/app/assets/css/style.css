@@ -309,7 +309,7 @@ input[type="file"] {
 
 .add-test__deadline-input {
     background-color: white;
-    color: color;
+    color: black;
 }
 
 /* /Tooltip */
@@ -671,6 +671,7 @@ table {
     border: none;
     cursor: pointer;
     display: block;
+    width: 100%;
 }
 
 .view-test-red-temporary {
@@ -892,6 +893,7 @@ table {
 .addition-test-title {
     font-size: 18px;
     font-weight: bold;
+    margin-bottom: 3px;
 }
 
 .addition-test-container {
@@ -2285,4 +2287,28 @@ table {
         height: 120px;
         overflow: hidden;
     }
+}
+
+.notification-message {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 2000;
+    transition: top 0.5s ease, opacity 0.5s ease, visibility 0s 0.5s;
+}
+
+.notification-message.show {
+    top: 20px;
+    opacity: 1;
+    visibility: visible;
+    transition: top 0.5s ease, opacity 0.5s ease;
 }

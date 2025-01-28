@@ -67,17 +67,60 @@
                 </div>
                 </div>
                 <div class="view-test-question">
-                    <h2 class="view-test-question-item"><span>1.</span>{{ current_question.question }}</h2>
+                    <h2 class="view-test-question-item"><span>{{ current_question.question_number }}.</span> {{ current_question.question }}</h2>
                 </div>
                 <form class="time-sleep" method="POST">
                 {% csrf_token %}
                     {% for answer in answers %}
                         <button type="submit" class="view-test-answer" name="answer" value="{{ answer.id }}">
-                            <div class="view-test-answer-item"><span>A.</span>{{ answer.answer }}</div>
+                            <div class="view-test-answer-item"><span>{{ answer.option }}.</span> {{ answer.answer }}</div>
                         </button>
                     {% endfor %}
                 </form>
             </div>
 </section>
+
+<script>
+const carousel = document.querySelector('.carousel');
+        const leftBtn = document.querySelector('.left-btn');
+        const rightBtn = document.querySelector('.right-btn');
+
+        leftBtn.addEventListener('click', () => {
+        carousel.scrollBy({
+        left: -100,
+        behavior: 'smooth'
+        });
+        });
+
+        rightBtn.addEventListener('click', () => {
+        carousel.scrollBy({
+        left: 100,
+        behavior: 'smooth'
+        });
+        });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let remainingTime = {{ remaining_time|safe }};  // Vaqtni serverdan olish (soniyalarda)
+
+        const timerElement = document.getElementById('timer');
+        const updateTimer = () => {
+            if (remainingTime <= 0) {
+                timerElement.textContent = '00:00';
+                return;
+            }
+
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            remainingTime -= 1; // Vaqtni kamaytirish
+        };
+
+        setInterval(updateTimer, 1000); // Har 1 soniyada yangilash
+        updateTimer(); // Dastlabki yangilash
+    });
+</script>
 
 {% endblock %}
