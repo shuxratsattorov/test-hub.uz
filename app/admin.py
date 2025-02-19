@@ -1,11 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.utils import timezone
+
 from .models import User, Profile, Category, Test, Question, Answer, Result, CorrectIncorrect
 
 
 class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'is_staff', 'is_active', 'is_superuser', 'verification_code', 'last_test_time')
+    list_display = ('id', 'email', 'is_staff', 'is_active', 'is_superuser', 'verification_code', 'last_test_time')
     list_filter = ('is_staff', 'is_active', 'is_superuser')
 
     search_fields = ('email',)
@@ -29,7 +29,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'first_name', 'last_name', 'phone_number', 'image', 'updated_at')
+    list_display = ('id', 'user', 'first_name', 'last_name', 'phone_number', 'image', 'updated_at')
     search_fields = ('user__email',)
 
 
@@ -38,25 +38,25 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class TestAdmin(admin.ModelAdmin):
-    list_display = ('title', 'test_count', 'duration', 'deadline', 'test_ids', 'test_password', 'created_at', 'category')
+    list_display = ('id', 'title', 'test_count', 'duration', 'deadline', 'test_ids', 'test_password', 'created_at', 'category')
     search_fields = ('test_ids', 'category__name')
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('question', 'question_number', 'image')
+    list_display = ('id', 'question', 'question_number', 'image')
 
 
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('answer', 'option', 'is_correct')
+    list_display = ('id', 'answer', 'option', 'is_correct')
 
 
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ('user', 'test__test_ids', 'status', 'test__duration', 'test__deadline', 'start_test', 'end_test')
+    list_display = ('id', 'user', 'test__test_ids', 'status', 'test__duration', 'test__deadline', 'start_test', 'end_test')
     search_fields = ('user__email', 'test__test_ids')
 
 
 class CorrectIncorrectAdmin(admin.ModelAdmin):
-    list_display = ('result__user__email', 'question__test__test_ids', 'correct_incorrect', 'status')
+    list_display = ('id', 'result__user__email', 'question__test__test_ids', 'correct_incorrect', 'status')
 
 
 admin.site.register(User, UserAdmin)

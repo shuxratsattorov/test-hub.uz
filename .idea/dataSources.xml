@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="db" uuid="8faaa482-2937-47ef-92a8-80f4430efdb3">
+    <data-source source="LOCAL" name="db [2]" uuid="79dec4a1-8bd4-4708-a61e-ed62ca3864b8">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\Victus\Downloads\Safe File\testhub_uz\db.sqlite3</jdbc-url>
+      <jdbc-url>jdbc:sqlite:C:\Users\Victus\Downloads\Safe File\test-hub.uz\db.sqlite3</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
       <libraries>
         <library>

@@ -17,10 +17,12 @@ urlpatterns = [
     path('delete/<str:hash_id>/<int:question_id>/', views.delete_question_with_answers, name='delete_question_with_answers'),
 
     # Test Rating Page ===========================================================================================
-    path('test-rating/<int:test_id>/', views.test_rating_page, name='rating'),
+    path('test-rating/', views.test_rating_page, name='rating'),
 
     # Profile Page ===============================================================================================
     path('profile/', views.profile_page, name='profile_page'),
+
+    path('redirect-to-telegram/', views.redirect_to_telegram, name="redirect_to_telegram"),
 
     # Export ====================================================================================================
     path('export/json/<str:hash_id>/', views.export_questions_as_json, name='export_questions_as_json'),
@@ -31,4 +33,5 @@ urlpatterns = [
     path('logout/', auth_views.logout_page, name='logout'),
     path('register/', auth_views.register_page, name='register'),
     path('verify/<str:verification_code>/', auth_views.verify_email, name='email_verification'),
+    path('hide-instruction/', views.hide_instruction, name="hide_instruction"),
 ]

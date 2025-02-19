@@ -18,7 +18,7 @@
 <section class="main-section">
         <div class="search-container">
             <form class="search" method="GET">
-                <input type="text" name="test_ids" value="{{ test_id_query }}" placeholder="Id kiriting">
+                <input type="text" name="test_ids" value="{{ test_id_query }}" placeholder="ID kiriting">
                 <button type="submit">Qidiruv</button>
             </form>
         </div>
@@ -32,7 +32,7 @@
             <div class="buttom-items">
                 <div class="search-test-card-count">Testlar soni: {{ test.test_count }}</div>
                 <div class="search-test-card-time">Berilgan vaqt: {{ test.duration }} minut</div>
-                <div class="search-test-card-deadline">Deadline: {{ test.deadline }} </div>
+                <div class="search-test-card-deadline">Deadline: {{ test.days_until_deadline }} kun </div>
             </div>
         </a>
         {% endfor %}
@@ -77,26 +77,31 @@
             </form>
             </div>
         </div>
+        <!-- /Modal -->
+
 </section>
 
+<script src="{% static 'app/assets/js/add_test/modalActions.js' %}"></script>
+
 <script>
-        const buttons = document.querySelectorAll('.expand-btn');
+    const buttons = document.querySelectorAll('.expand-btn');
+    buttons.forEach((button) => {
+        button.addEventListener('click', function (event) {
+            event.stopPropagation();
+            event.preventDefault();
 
-        buttons.forEach((button) => {
-            button.addEventListener('click', function () {
-                const card = button.closest('.addition-test-cards');
+            const card = button.closest('.addition-test-cards');
+            const description = card.querySelector('.addition-test-card-description');
 
-                const description = card.querySelector('.addition-test-card-description');
+            description.classList.toggle('expanded');
 
-                description.classList.toggle('expanded');
-
-                if (description.classList.contains('expanded')) {
-                    button.innerHTML = '<img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Up.svg' %}">';
-                } else {
-                    button.innerHTML = '<img class="expand-btn-icon" src="{% static 'app/assets/icon/Alt Arrow Down.svg' %}">';
-                }
-            });
+            if (description.classList.contains('expanded')) {
+                button.innerHTML = '<img class="expand-btn-icon" src="{% static "app/assets/icon/Alt Arrow Up.svg" %}">';
+            } else {
+                button.innerHTML = '<img class="expand-btn-icon" src="{% static "app/assets/icon/Alt Arrow Down.svg" %}">';
+            }
         });
+    });
 </script>
 
 {% endblock %}

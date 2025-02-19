@@ -11,33 +11,40 @@ class TestForm(forms.ModelForm):
     test_count = forms.IntegerField(required=False)
     category = forms.ModelChoiceField(queryset=Category.objects.all(), required=False)
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
     class Meta:
         model = Test
         fields = ['test_count', 'title', 'duration', 'deadline', 'category']
 
-    def clean_all(self):
-
-        all_fields_empty = not any(self.cleaned_data.get(field) for field in ['test_count', 'title', 'deadline'])
-
-        if all_fields_empty:
-            raise ValidationError("Maydonlar boʻsh boʻlishi mumkin emas.")
-
-        return all_fields_empty
-
-    def clean_title(self):
+    def clean(self):
+        cleaned_data = super().clean()
         title = self.cleaned_data.get('title')
-        if not title:
-            raise ValidationError('Title: maydoni boʻsh boʻlishi mumkin emas.')
-        return title
-
-    def clean_deadline(self):
         deadline = self.cleaned_data.get('deadline')
-        if deadline:
+
+        user = self.request.user if self.request else None
+
+        if not title and not deadline:
+            self.add_error("title", "")
+            return cleaned_data
+
+        if not title:
+            self.add_error("title", "Maydon boʻsh boʻlishi mumkin emas.")
+            return cleaned_data
+
+        if user and user.is_superuser:
+            return cleaned_data
+
+        if not deadline:
+            self.add_error("deadline", "Maydon boʻsh boʻlishi mumkin emas.")
+        elif deadline:
             today = date.today()
             one_week_later = today + timedelta(weeks=1)
             if not (today <= deadline <= one_week_later):
-                self.add_error('deadline',
-                               f"Deadline bugundan boshlab bir hafta ichida bo'lishi kerak. ({today} / {one_week_later})")
+                self.add_error("deadline", f"Diapazon: ({today} / {one_week_later})")
+        return cleaned_data
 
 
 def validate_image_size(image):
@@ -64,11 +71,26 @@ class QuestionForm(forms.ModelForm):
         return question
 
 
-class AnswerForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        self.question = kwargs.pop('question', None)
-        super().__init__(*args, **kwargs)
+class Profile(forms.ModelForm):
+    first_name = forms.CharField(max_length=55, required=False)
+    last_name = forms.CharField(max_length=55, required=False)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        first_name = cleaned_data.get("email")
+        last_name = cleaned_data.get("password")
+
+        if not first_name and not last_name:
+            self.add_error("first_name", "")
+        elif not first_name:
+            self.add_error("first_name", "Ism kiritilishi shart!")
+        elif not last_name:
+            self.add_error("last_name", "Familiya kiritilishi shart!")
+
+        return cleaned_data
+
+
+class AnswerForm(forms.ModelForm):
     class Meta:
         model = Answer
         fields = ['answer', 'is_correct']
@@ -78,58 +100,78 @@ class AnswerForm(forms.ModelForm):
         answer = cleaned_data.get('answer')
         is_correct = cleaned_data.get('is_correct')
 
-        if not answer and is_correct is None:
-            raise ValidationError("Maydonlar boʻsh boʻlishi mumkin emas.")
-
-        if self.question and answer == self.question.question:
-            raise ValidationError("Javob savol bilan bir xil boʻlmasligi kerak.")
-
-    def clean_answer(self):
-        answer = self.cleaned_data.get('answer')
         if not answer:
-            raise ValidationError("Maydon boʻsh boʻlishi mumkin emas.")
-        return answer
+            raise ValidationError({'answer': 'Maydon boʻsh boʻlishi mumkin emas.'})
 
-    def clean_is_correct(self):
-        is_correct = self.cleaned_data.get('is_correct')
         if is_correct is None:
-            raise ValidationError("Maydon boʻsh boʻlishi mumkin emas.")
-        return is_correct
+            raise ValidationError({'is_correct': 'Maydon boʻsh boʻlishi mumkin emas.'})
+
+        return cleaned_data
 
 
 AnswerFormSet = inlineformset_factory(Question, Answer, form=AnswerForm, extra=5)
 
 
 class LoginForm(forms.Form):
-    email = forms.EmailField()
-    password = forms.CharField(max_length=255)
+    email = forms.EmailField(required=False)
+    password = forms.CharField(max_length=55, required=False)
 
-    def clean_password(self):
-        email = self.cleaned_data.get('email')
-        password = self.cleaned_data.get('password')
-        try:
-            user = User.objects.get(email=email)
-            if not user.check_password(password):
-                raise forms.ValidationError('password error')
-        except User.DoesNotExist:
-            raise forms.ValidationError('email topilmadi.')
-        return password
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
+
+        if not email and not password:
+            self.add_error("email", "")
+        elif not email:
+            self.add_error("email", "Email kiritilishi shart!")
+        elif not password:
+            self.add_error("password", "Parol kiritilishi shart!")
+
+        if email and password:
+            try:
+                user = User.objects.get(email=email)
+                if not user.check_password(password):
+                    self.add_error("password", "Parol noto‘g‘ri.")
+            except User.DoesNotExist:
+                self.add_error("email", "Bunday email topilmadi.")
+
+        return cleaned_data
 
 
 class RegisterForm(forms.Form):
-    email = forms.EmailField()
-    password = forms.CharField(max_length=55)
-    confirm_password = forms.CharField(max_length=55)
+    email = forms.EmailField(required=False)
+    password = forms.CharField(max_length=55, required=False)
+    confirm_password = forms.CharField(max_length=55, required=False)
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
+    def clean(self):
+        cleaned_data = super().clean()
+        email = cleaned_data.get("email")
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+
+        if not email and not password and not confirm_password:
+            self.add_error("email", "")
+            return cleaned_data
+
+        if not email:
+            self.add_error("email", "Email kiritilishi shart!")
+            return cleaned_data
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('email already exists')
-        return email
+            self.add_error("email", "Email allaqachon mavjud.")
+            return cleaned_data
 
-    def clean_confirm_password(self):
-        password = self.cleaned_data.get('password')
-        confirm_password = self.cleaned_data.get('confirm_password')
+        if not password:
+            self.add_error("password", "Parol kiritilishi shart!")
+            return cleaned_data
+        if len(password) < 8:
+            self.add_error("password", "Parol kamida 8 ta belgidan iborat bo'lishi kerak.")
+            return cleaned_data
+
+        if not confirm_password:
+            self.add_error("confirm_password", "Parol tasdiqlash kiritilishi shart!")
+            return cleaned_data
         if password != confirm_password:
-            raise forms.ValidationError('password error')
-        return password
+            self.add_error("confirm_password", "Parol mos kelmadi.")
+
+        return cleaned_data

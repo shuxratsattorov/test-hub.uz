@@ -1,4 +1,5 @@
 from datetime import timedelta
+
 from django.utils.timezone import now
 
 from app.models import Profile, Notification
@@ -30,5 +31,3 @@ def context_manager(request):
         context['unread_count'] = unread_count  # O'qilmagan xabarlar soni
 
     return context
-
-

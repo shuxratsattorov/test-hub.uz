@@ -1,6 +1,5 @@
 @font-face {
     font-family: SBSansText, Helvetica, Arial, sans-serif;
-    src: url(../fonts/Inter-VariableFont_opsz\,wght.ttf);
 }
 
 ::-webkit-scrollbar {
@@ -149,6 +148,10 @@ body {
     display: none;
 }
 
+.header-menu__user-action {
+    display: none;
+}
+
 .header-menu__notification-item,
 .header-menu__user-item, 
 .header-menu__logout-item {
@@ -159,6 +162,7 @@ body {
     width: 45px;
     height: 45px;
     border-radius: 50%;
+    object-fit: cover;
 }
 
 .header-menu__notification-item:hover,
@@ -247,6 +251,26 @@ body {
 
     .header-menu__logout {
         display: none;
+    }
+
+    .header-menu__user-action {
+        display: none;
+        position: absolute;
+        top: 65px;
+        right: 68px;
+        width: 80px;
+        height: 25px;
+        background-color: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        z-index: 1001;
+    }
+
+    .header-menu__user-action span {
+        color: black;
+        display: block;
+        padding-left: 14px;
+        padding-top: 3px;
     }
 
     .header-menu__title-item {

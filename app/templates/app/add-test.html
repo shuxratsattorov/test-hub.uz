@@ -18,29 +18,40 @@
         <div class="add-test">
             <!-- Forms -->
             <div class="add-test__form-container">
-                <div class="add-test__title"> Savol qo'shish <span class="add-test__question-count">({{ test.test_count }}/{{ current_question_count }})</span></div>
+                <div class="add-test__title"> Savol qo'shish <span class="add-test__question-count">({{ current_question_count }}/{{ test.test_count }})</span></div>
                 <form method="POST" class="add-test__form-question-with-answer" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <!-- Img Imput -->
+                    <!-- Img Input -->
                     <div class="add-test__form-img">
                         <label class="add-test__label add-test__label-img" for="file">Rasm:
-                            <div class="error">
+                            <div class="img-error">
                                 <p>error all</p>
                             </div>
                         </label>
                         <label class="add-test__custom-file-upload" for="test-image">Yuklash</label>
-                        <span class="add-test__warning">5MB dan oshmasin</span>
+                        <span class="add-test__warning">10MB dan oshmasin</span>
                         <input type="file" id="test-image" name="image" accept="image/*">
-                        <div class="img-error">
-                            <p>error img</p>
+                        {% if question_form.question.errors %}
+                        <div class="error">
+                            {% for error in question_form.image.errors %}
+                                <p>error img</p>
+                            {% endfor %}
                         </div>
+                        {% endif %}
                     </div>
-                    <!-- /Img Img -->
+                    <!-- /Img Input -->
 
                     <!-- Question Input -->
                     <div class="add-test__form-question">
                         <label class="add-test__label" for="test-description">Savol:</label>
                         <textarea class="add-test__question-input add-test__focus" id="test-description" name="question" rows="3" placeholder="Test haqida ma'lumot kiriting"></textarea>
+                        {% if question_form.question.errors %}
+                            <div class="error">
+                                {% for error in question_form.question.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         <div class="question-error">
                             <p>error question</p>
                         </div>
@@ -52,6 +63,13 @@
                         {{ formset.management_form }}
                         <div id="input-container" class="input-row">
                             <label class="add-test__label" for="test-options">Javoblar:
+                                {% if formset.answer.errors %}
+                                    <div class="error">
+                                        {% for error in formset.answer.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                                 <button class="add-test__add-input-button" type="button" id="add-input">+</button>
                             </label>
                             <div class="input-radio-pair">
@@ -66,17 +84,14 @@
                             </div>
                         </div>
                     </div>
+                    <!-- /Answer Input -->
                     <button class="add-test__btn animation-button" type="submit" onclick="openModal()">Saqlash</button>
                 </form>
-                <!-- /Answer Input -->
                 <hr class="add-test__hr">
                 <div class="add-test__title">Asosiy malumot
                     <span class="tooltip">?
                         <span class="tooltip-text">Asosiy malumotlarni to'liq saqlaganingizdan keyin “Savol qo'shish” bo'limiga o'tishingiz mumkin!</span>
                     </span>
-                    <div class="error">
-                        <p>error all</p>
-                    </div>
                 </div>
                 <form class="add-test__form-basic-information" method="POST" action="{% url 'add_test' %}">
                 {% csrf_token %}
@@ -84,9 +99,13 @@
                 <div class="title-container">
                     <label class="add-test__label" for="">Sarlavha:</label>
                     <input class="add-test__title-input add-test__focus" name="title" type="text" placeholder="Sarlavha">
-                    <div class="title-error">
-                        <p>error title</p>
-                    </div>
+                    {% if test_form.title.errors %}
+                        <div class="error">
+                            {% for error in test_form.title.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <!-- /Title Input -->
 
@@ -100,9 +119,6 @@
                         <option value="90">90 ta</option>
                         <option value="120">120 ta</option>
                     </select>
-                    <div class="test-count-error">
-                        <p>error test count</p>
-                    </div>
                 </div>
                 <!-- /Count Input -->
 
@@ -111,7 +127,6 @@
                 <div class="deadline-container">
                     <label class="add-test__label add-test__label-deadline" for="">Kategoriya:</label>
                     <select class="add-test__deadline-input add-test__select add-test__focus" name="category" id="category">
-                        <option value=""></option>
                         {% for category in categories %}
                             <option value="{{ category.id }}" {% if category.id == form.category.value %} selected {% endif %}>{{ category.name }}</option>
                         {% endfor %}
@@ -122,20 +137,17 @@
                 </div>
                 {% else %}
                 <div class="deadline-container">
-                    <label class="add-test__label add-test__label-deadline" for="">Deadline:</label>
+                    <label class="add-test__label add-test__label-deadline">Deadline:</label>
                     <input class="add-test__deadline-input add-test__select add-test__focus" name="deadline" type="date">
-{#                    {% if test_form.clean_deadline.errors %}#}
-{#                    <div class="deadline-error">#}
-{#                        {% for error in test_form.deadline.errors %}#}
-{#                            <p>{{ error }}</p>#}
-{#                        {% endfor %}#}
-{#                    </div>#}
-{#                    {% endif %}#}
+                    {% if test_form.deadline.errors %}
+                        <div class="error">
+                            {% for error in test_form.deadline.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 {% endif %}
-                    <div class="deadline-error">
-                        <p>error deadline</p>
-                    </div>
                 <!-- /Deadline Input -->
 
                 <!-- Time Input -->
@@ -148,9 +160,6 @@
                         <option value="120">120 minut</option>
                         <option value="240">240 minut</option>
                     </select>
-                    <div class="time-error">
-                        <p>error time</p>
-                    </div>
                 </div>
                 <!-- /Time Input -->
 
@@ -214,7 +223,7 @@
                             <td>
                                 <img src="{% static 'app/assets/icon/Menu Dots.svg' %}" class="menu-btn" alt="Menu Dots">
                                 <div class="context-menu">
-                                    <button class="update-btn">O'zgartirish</button>
+{#                                    <button class="update-btn">O'zgartirish</button>#}
                                     <form method="post" action="{% url 'delete_question_with_answers' hash_id=hash_id question_id=test_table.id %}">
                                     {% csrf_token %}
                                         <button type="submit" class="delete-btn">O'chirish</button>
@@ -269,18 +278,23 @@
         </div>
 
         <!-- Modal -->
+        {% if test_ids %}
         <div class="modal" id="deleteModal">
             <div class="modal-content">
-            <div class="modal-title"><span>ID:</span> 5447679</div>
-            <input type="text" placeholder="Tasdiqlash kodi">
+            <div class="modal-title"><span>ID:</span> {{ test_ids }}</div>
+            <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="test_password" placeholder="Maxfiy kodni kiriting">
                 <button class="confirm-btn animation-button" onclick="confirmDelete()">Tasdiqlash</button>
-                <button class="cancel-btn" onclick="closeModal()"><div class="close-icon"></div></button>
+                <button class="cancel-btn" onclick="confirmDelete()"><div class="close-icon"></div></button>
+            </form>
             </div>
         </div>
+        {% endif %}
+        <!-- /Modal -->
 </section>
 
 <script src="{% static 'app/assets/js/add_test/scrollTextAnimation.js' %}"></script>
-<script src="{% static 'app/assets/js/add_test/renumberTableRows.js' %}"></script>
 <script src="{% static 'app/assets/js/add_test/dropdownMenu.js' %}"></script>
 
 <script>
@@ -365,5 +379,53 @@
     }
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("deleteModal");
+    const confirmBtn = document.querySelector(".confirm-btn");
+    const cancelBtn = document.querySelector(".cancel-btn");
+    const form = document.querySelector("form");
+
+    function openModal() {
+        modal.style.display = "flex";
+        localStorage.setItem("modalState", "open");
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+        localStorage.setItem("modalState", "closed");
+    }
+
+    if ("{{ test_ids }}" !== "") {
+        openModal();
+    }
+
+    confirmBtn.addEventListener("click", function (event) {
+        closeModal();
+        form.submit();
+    });
+
+    cancelBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        closeModal();
+    });
+  });
+</script>
+
+<script>
+    let globalIndex = ({{ page_obj.number }} - 1) * {{ page_obj.paginator.per_page }} + 1;
+
+    function renumberTableRows() {
+        const rows = document.querySelectorAll('.add-test__table-row');
+        rows.forEach((row) => {
+            const firstCell = row.querySelector('td:first-child');
+            if (firstCell) {
+                firstCell.textContent = globalIndex++;
+            }
+        });
+    }
+
+    renumberTableRows();
+</script>
 
 {% endblock %}

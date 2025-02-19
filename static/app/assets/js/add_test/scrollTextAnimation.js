@@ -1,4 +1,3 @@
-// Matnli bloklarni ekranda harakatlantirish uchun ishlatiladi
 const scrollTexts = document.querySelectorAll('.scroll-text');
 const speed = 0.5;
 

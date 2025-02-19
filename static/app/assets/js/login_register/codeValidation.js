@@ -23,10 +23,4 @@ function moveFocus(index) {
 
     // Yashirin inputga qiymatni qo'shish
     document.getElementById("fullCode").value = code.join("");
-
-    // Tekshirish: faqat to'liq 6 ta raqam bo'lsa yuboriladi
-    if (code.join("").length !== 6) {
-      event.preventDefault(); // Formani yuborishni to'xtatish
-      alert("Please enter a valid 6-digit code.");
-    }
   }

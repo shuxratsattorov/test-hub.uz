@@ -2,7 +2,7 @@ import random
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import Http404
@@ -15,13 +15,12 @@ from hashids import Hashids
 
 from app.forms import LoginForm
 from app.forms import RegisterForm
-from app.models import User
+from app.models import User, Notification
 
 hashids = Hashids(min_length=70, salt="your_salt")
 
 
 def login_page(request):
-    form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -32,12 +31,8 @@ def login_page(request):
                 if user.is_active:
                     login(request, user)
                     return redirect('tests')
-            else:
-                messages.add_message(
-                    request,
-                    level=messages.WARNING,
-                    message='User not found'
-                )
+    else:
+        form = LoginForm()
 
     return render(request, 'app/login.html', {'form': form})
 
@@ -76,11 +71,7 @@ def generate_new_verification_code(user):
     )
 
 
-User = get_user_model()
-
-
 def register_page(request):
-    form = RegisterForm()
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -91,23 +82,12 @@ def register_page(request):
             user.save()
 
             generate_new_verification_code(user)
-
             messages.info(request, 'Tasdiqlash kodi email manzilingizga yuborildi.')
 
-            total_users = User.objects.count()
-            subject = "Yangi foydalanuvchi ro'yxatdan o'tdi"
-            message = f"User: {email}\nJami foydalanuvchilar soni: {total_users}"
-            from_email = 'shuhratsattorov2004@gmail.com'
-            recipient_list = ['shuhratsattorov2004@gmail.com']
-
-            send_mail(
-                subject,
-                message,
-                from_email,
-                recipient_list
-            )
-
             return redirect('email_verification', verification_code=user.verification_code)
+
+    else:
+        form = RegisterForm()
 
     return render(request, 'app/register.html', {'form': form})
 
@@ -141,7 +121,17 @@ def verify_email(request, verification_code):
                 user.is_active = True
                 user.verification_code = None
                 user.save()
-                return redirect('login')
+
+                Notification.objects.create(
+                    user=user,
+                    notification=f"Siz ro‘yxatdan o‘tdingiz! Endi profilingizni to‘ldiring va xizmatlarimizdan to‘liq foydalaning.",
+                )
+
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+                # request.session['show_instruction'] = True
+                return redirect('tests')
+
             elif code_expired:
                 messages.error(request, 'Tasdiqlash kodi muddati tugagan. Iltimos, yangi kod so‘rang.')
             else:
@@ -154,3 +144,5 @@ def verify_email(request, verification_code):
     }
 
     return render(request, 'app/verification_code.html', context)
+
+# User = get_user_model()

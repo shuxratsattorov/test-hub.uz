@@ -21,7 +21,7 @@
         <div class="result__left-container">
             <h1>Sizning natijangiz</h1>
             <div class="result__circle">
-                    <h1><span>{{ results.0.percentage|floatformat:0 }}</span>dan 100%</h1>
+                <h1><span>{{ results.0.percentage|floatformat:0 }}</span>dan 100%</h1>
             </div>
             {% if results.0.percentage >= 90 %}
                 <h2>A'lo</h2>
@@ -48,7 +48,7 @@
                 <img src="{% static 'app/assets/icon/Alarm.svg' %}" alt="">
                 {{ results.0.time_taken|floatformat:0 }} minut
             </div>
-            <button onclick="window.location.href={% url 'tests' %}" type="submit" class="result__back animation-button">
+            <button onclick="window.location.href='/'" type="button" class="result__back animation-button">
                 <img src="{% static 'app/assets/icon/Arrow Left.svg' %}" alt=""> Orqaga
             </button>
         </div>

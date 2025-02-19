@@ -24,7 +24,7 @@
                 {% if profile.image  %}
                     <img class="profile__img" id="profile-pic" src="{{ profile.image.url }}" alt="Profile Picture">
                 {% else %}
-                    <img class="profile__img" id="profile-pic" src="{% static 'app/assets/icon/img.png' %}" alt="Profile Picture">
+                    <img class="profile__img" id="profile-pic" src="{% static 'app/assets/icon/User Circle.svg' %}" alt="Profile Picture">
                 {% endif %}
                 <input class="profile__input add-test__focus" type="file" name="profile_pic" id="edit-pic" accept="image/*" style="display: none;">
                 <button type="button" class="profile__edit-icon edit" onclick="document.getElementById('edit-pic').click()">

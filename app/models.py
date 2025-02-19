@@ -1,11 +1,11 @@
 import random
-from datetime import timedelta
 
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
+from django.core.files.base import ContentFile
 from django.db import models
-from django.utils import timezone
 
 from app.managers import CustomUserManager
+from .utils import compress_image
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -23,6 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Profile(models.Model):
+    show_instruction = models.BooleanField(default=False)
     first_name = models.CharField(max_length=55, null=True, blank=True)
     last_name = models.CharField(max_length=55, null=True, blank=True)
     phone_number = models.CharField(max_length=13, null=True, blank=True)
@@ -30,9 +31,20 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now=False, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
 
+    def save(self, *args, **kwargs):
+        if self.image:
+            compressed_image = compress_image(self.image)
+
+            self.image.save(self.image.name, ContentFile(compressed_image.read()), save=False)
+
+        super(Profile, self).save(*args, **kwargs)
+
 
 class Category(models.Model):
     name = models.CharField(max_length=45, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Test(models.Model):
@@ -70,10 +82,18 @@ class Test(models.Model):
 
 
 class Question(models.Model):
-    question = models.TextField()
+    question = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='questions/', null=True, blank=True)
     question_number = models.IntegerField(null=True, blank=True)
     test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='questions')
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            compressed_image = compress_image(self.image)
+
+            self.image.save(self.image.name, ContentFile(compressed_image.read()), save=False)
+
+        super(Question, self).save(*args, **kwargs)
 
 
 class Answer(models.Model):
