@@ -1,8 +1,12 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+from dotenv import load_dotenv
+import os
 
-BOT_TOKEN = "7885530277:AAFmzhVayqQQVvZbZkLkob_6lzkIvqnFb9M"
-ADMIN_ID = 5146109604
+load_dotenv()
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+ADMIN_ID = os.getenv('ADMIN_ID')
 
 user_data = {}
 
